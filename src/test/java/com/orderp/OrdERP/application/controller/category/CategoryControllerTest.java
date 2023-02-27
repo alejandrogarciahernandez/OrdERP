@@ -1,9 +1,11 @@
-package com.orderp.OrdERP.application.controller.item;
-
+package com.orderp.OrdERP.application.controller.category;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.orderp.OrdERP.application.controller.category.Category;
+import com.orderp.OrdERP.application.controller.item.Item;
+import com.orderp.OrdERP.application.controller.item.ItemController;
+import com.orderp.OrdERP.application.dao.category.CategoryRepository;
 import com.orderp.OrdERP.application.dao.item.ItemRepository;
+import com.orderp.OrdERP.application.service.category.CategoryService;
 import com.orderp.OrdERP.application.service.item.ItemService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,69 +31,46 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(ItemController.class)
-@ContextConfiguration(classes = ItemController.class)
+@WebMvcTest
+@ContextConfiguration(classes = CategoryController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class ItemControllerTest {
+public class CategoryControllerTest {
+
     @Autowired
     MockMvc mockMvc;
-    @MockBean
-    private ItemService itemService;
 
     @MockBean
-    private ItemRepository itemRepository;
+    private CategoryService categoryService;
+
+    @MockBean
+    private CategoryRepository categoryRepository;
 
     @Test
-    void getAllItems() throws Exception {
-        List<Item> items = new ArrayList<Item>();
-        items.add(new Item(1L, "$", 19.99d, "img/imgRoute/img.jpg", "title", "description", new Category(1l, "category1")));
-        items.add(new Item(2L, "$", 19.99d, "img/imgRoute/2.jpg", "title2", "description2", new Category(2l, "category2")));
-        when(itemService.findAll()).thenReturn(items);
-        mockMvc.perform(MockMvcRequestBuilders.get("/items")
+    void getAllCategories() throws Exception {
+        List<Category> categories = new ArrayList<Category>();
+        categories.add(new Category(1l, "category1"));
+        categories.add(new Category(2l, "category2"));
+
+        when(categoryService.findAll()).thenReturn(categories);
+        mockMvc.perform(MockMvcRequestBuilders.get("/categories")
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(jsonPath("$", hasSize(2))).andDo(print());
     }
 
     @Test
-    void insertItem() throws Exception {
+    void insertCategory() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> body = new HashMap<>();
-        body.put("id", 1L);
-        body.put("currency", "$");
-        body.put("price", 19.99);
-        body.put("imgRoute", "img/imgRoute/img.jpg");
-        body.put("title", "title");
-        body.put("description", "description1");
-        body.put("category", Map.of("categoryId", 1L, "categoryName", "category1"));
+        body.put("categoryId", 1L);
+        body.put("categoryName", "cat");
 
         mockMvc.perform( MockMvcRequestBuilders
-                        .post("/item")
+                        .post("/category")
                         .content(objectMapper.writeValueAsString(body))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$").exists());
-    }
-
-    @Test
-    void modifyItem() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> body = new HashMap<>();
-        body.put("id", 2L);
-        body.put("currency", "$");
-        body.put("price", 20.99);
-        body.put("imgRoute", "img/imgRoute/img.jpg");
-        body.put("title", "title1");
-        body.put("description", "description2");
-        body.put("category", Map.of("categoryId", 1L, "categoryName", "category1"));
-
-        mockMvc.perform( MockMvcRequestBuilders
-                        .put("/item")
-                        .content(objectMapper.writeValueAsString(body))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is2xxSuccessful());
     }
 }
