@@ -1,5 +1,6 @@
 package com.orderp.OrdERP.application.controller.item;
 
+import com.google.gson.Gson;
 import com.orderp.OrdERP.application.service.item.ItemNotFoundException;
 import com.orderp.OrdERP.application.service.item.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,8 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.websocket.server.PathParam;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +27,8 @@ public class ItemController {
     }
 
     @PostMapping("/item")
-    public ResponseEntity<Long> createItem(@RequestBody Item item) {
-        return new ResponseEntity<>(itemService.create(item), HttpStatus.CREATED);
+    public ResponseEntity<Long> createItem(@RequestParam("file") MultipartFile file, @RequestParam("data") String data) throws IOException {
+        return new ResponseEntity<>(itemService.create(file, data), HttpStatus.CREATED);
     }
 
     @PutMapping("/item/{id}")
